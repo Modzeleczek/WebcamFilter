@@ -100,17 +100,7 @@ void GPU::CreateTexture() // tworzymy teksturę, do której przekazujemy klatkę
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // lub GL_LINEAR; gdy używamy standardowej float tekstury (każdy teksel ma znormalizowane wartości składowych do przedziału [0, 1]), metoda filtrowania ma znaczenie tylko, gdy fragment shader używa do samplowania texture2D, a nie texelFetch
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    const unsigned int length = (Width * Height) / 2 * 4;
-    uint8_t *data = (uint8_t*) malloc(length * sizeof(uint8_t));
-    if (data != NULL)
-    {
-        memset(data, 0, length);
-        // przesyłamy teksturę do GPU, mówiąc w jakim formacie ma ją zinterpretować
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width / 2, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy width / 2
-        free(data);
-    }
-    else
-        throw std::runtime_error("GPU::CreateTexture; Failed to load texture.");
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width / 2, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy width / 2
 }
 
 void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShaderPath) // kompilujemy shadery i linkujemy je do programu
