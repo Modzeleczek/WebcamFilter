@@ -12,10 +12,10 @@ private:
 
 public:
     GPU(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
-    ~GPU();
+    virtual ~GPU();
 
     void UploadFrame();
-    void ProcessFrame() override;
+    virtual void ProcessFrame() override;
     void DownloadFrame();
 private:
     void CheckShaderCompileStatus(unsigned int handle);

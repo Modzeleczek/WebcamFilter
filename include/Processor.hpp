@@ -16,6 +16,7 @@ protected:
     Processor(IBuffer *source);
     virtual ~Processor();
 
+public:
     virtual void ProcessFrame() = 0;
 };
 

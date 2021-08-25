@@ -10,13 +10,13 @@ class Webcam : public V4L2Device, public ISource
 {
 public:
     Webcam(const char *devicePath, int frameWidth, int frameHeight);
-    ~Webcam();
+    virtual ~Webcam();
 
 public:
-    uint8_t* GetBuffer() const override;
-    int GetWidth() const override;
-    int GetHeight() const override;
-    void DownloadFrame() override;
+    virtual uint8_t* GetBuffer() const override;
+    virtual int GetWidth() const override;
+    virtual int GetHeight() const override;
+    virtual void DownloadFrame() override;
 };
 
 #endif // Webcam

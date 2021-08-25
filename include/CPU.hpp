@@ -13,9 +13,9 @@ private:
 
 public:
     CPU(IBuffer *buffer); // przetwarzamy klatkę w miejscu, czyli bez kopiowania z bufora wejściowego do wyjściowego
-    ~CPU();
+    virtual ~CPU();
 
-    void ProcessFrame() override;
+    virtual void ProcessFrame() override;
 private:
     void RandomizeLine();
     void DrawLine();

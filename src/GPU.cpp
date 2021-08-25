@@ -112,7 +112,7 @@ void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShader
 {
     // kod vertex shadera wykonywany dla każdego wierzchołka umieszczonego w buforze VBO
     char *vertexShaderCode = NULL;
-    if (loadText(vertexShaderPath, &vertexShaderCode) < 0)
+    if (LoadText(vertexShaderPath, &vertexShaderCode) < 0)
         throw std::runtime_error(std::string("GPU::CreateProgram; Failed to load vertex shader code from file ") + vertexShaderPath);
     // tworzymy nowy vertex shader w GPU i zapisujemy do niego uchwyt
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -126,7 +126,7 @@ void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShader
 
     // kod fragment shadera wykonywany dla każdego piksela wyświetlanej figury (tutaj prostokąta)
     char *fragmentShaderCode = NULL;
-    if (loadText(fragmentShaderPath, &fragmentShaderCode) < 0)
+    if (LoadText(fragmentShaderPath, &fragmentShaderCode) < 0)
         throw std::runtime_error(std::string("GPU::CreateProgram; Failed to load fragment shader code from file ") + vertexShaderPath);
     // tworzymy nowy fragment shader w GPU i zapisujemy do niego uchwyt
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);

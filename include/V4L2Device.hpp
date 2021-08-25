@@ -7,14 +7,14 @@
 class V4L2Device
 {
 protected:
-    int FileDescriptor;
+    const int FileDescriptor;
     v4l2_buffer BufferInfo;
     const int Width, Height;
     uint8_t *Buffer;
     bool Streaming;
 
     V4L2Device(const char *path, int width, int height, int capability, v4l2_buf_type bufferType);
-    ~V4L2Device();
+    virtual ~V4L2Device();
 
 private:
     void SetFormat(int capability, v4l2_buf_type bufferType);

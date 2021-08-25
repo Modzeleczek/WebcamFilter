@@ -10,13 +10,15 @@
 #include <unistd.h>
 
 V4L2Device::V4L2Device(const char *path, int width, int height, int capability, v4l2_buf_type bufferType) :
-    Width(width), Height(height)
+    FileDescriptor(open(path, O_RDWR)),
+    Width(width),
+    Height(height),
+    Streaming(false)
 {
-    if ( (FileDescriptor = open(path, O_RDWR)) < 0 )
+    if (FileDescriptor < 0)
         throw std::runtime_error( std::string("V4L2Device::V4L2Device; ") + path + "; " + strerror(errno) );
     SetFormat(capability, bufferType);
     CreateBuffer(bufferType);
-    Streaming = false;
 }
 
 V4L2Device::~V4L2Device()

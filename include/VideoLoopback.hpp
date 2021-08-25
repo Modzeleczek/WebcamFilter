@@ -10,13 +10,13 @@ class VideoLoopback : public V4L2Device, public ITarget
 {
 public:
     VideoLoopback(const char *devicePath, int frameWidth, int frameHeight);
-    ~VideoLoopback();
+    virtual ~VideoLoopback();
 
 public:
-    uint8_t* GetBuffer() const override;
-    int GetWidth() const override;
-    int GetHeight() const override;
-    void UploadFrame() override;
+    virtual uint8_t* GetBuffer() const override;
+    virtual int GetWidth() const override;
+    virtual int GetHeight() const override;
+    virtual void UploadFrame() override;
 };
 
 #endif // VideoLoopback_HPP
