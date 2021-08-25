@@ -2,8 +2,6 @@
 #include "../include/FileIO.hpp"
 
 #include <GL/glew.h>
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <string.h>
 
@@ -46,23 +44,30 @@ GPU::~GPU()
     glDeleteTextures(1, &Texture1);
 }
 
-void GPU::ProcessFrame()
+void GPU::UploadFrame()
 {
     // przesyłamy klatkę do pamięci GPU jako teksturę
     // glTexImage2D rezerwuje nową pamięć dla aktualnie zbindowanego uchwytu tekstury w GPU, a glTexSubImage2D tylko aktualizuje jej istniejącą pamięć
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, Input); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy WIDTH / 2
+    // memcpy((void*)gpuBuffer, Input, (Width * Height) / 2 * 4);
+}
 
+void GPU::ProcessFrame()
+{
     // aktywujemy jednostkę teksturującą (texture unit) o indeksie 0; nie trzeba tego robić, bo texture unit o indeksie 0 jest zawsze domyślnie aktywny; jeżeli używalibyśmy kilku tekstur jednocześnie, to musielibyśmy kolejno aktywować texture unit o indeksie n i zbindować do niego wybraną teksturę, a następnie to samo zrobić dla texture unita o indeksie n+1
     // glActiveTexture(GL_TEXTURE0);
     // bindujemy teksturę texture1 do aktualnie aktywnego texture unita
-    // glBindTexture(GL_TEXTURE_2D, texture1);
+    // glBindTexture(GL_TEXTURE_2D, Texture1);
 
     // rysujemy prostokąt, używając jako typu prymitywu GL_TRIANGLES
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     // nie trzeba za każdym razem odbindowywać VAO, bo używamy tylko jednego VAO
     // glBindVertexArray(0);
+}
 
-    glReadPixels(0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, (void*)Output);
+void GPU::DownloadFrame()
+{
+    glReadPixels(0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, Output);
 }
 
 void GPU::CheckShaderCompileStatus(unsigned int handle)
@@ -107,7 +112,7 @@ void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShader
 {
     // kod vertex shadera wykonywany dla każdego wierzchołka umieszczonego w buforze VBO
     char *vertexShaderCode = NULL;
-    if (loadText(vertexShaderPath, &vertexShaderCode) < 0)
+    if (LoadText(vertexShaderPath, &vertexShaderCode) < 0)
         throw std::runtime_error(std::string("GPU::CreateProgram; Failed to load vertex shader code from file ") + vertexShaderPath);
     // tworzymy nowy vertex shader w GPU i zapisujemy do niego uchwyt
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -121,7 +126,7 @@ void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShader
 
     // kod fragment shadera wykonywany dla każdego piksela wyświetlanej figury (tutaj prostokąta)
     char *fragmentShaderCode = NULL;
-    if (loadText(fragmentShaderPath, &fragmentShaderCode) < 0)
+    if (LoadText(fragmentShaderPath, &fragmentShaderCode) < 0)
         throw std::runtime_error(std::string("GPU::CreateProgram; Failed to load fragment shader code from file ") + vertexShaderPath);
     // tworzymy nowy fragment shader w GPU i zapisujemy do niego uchwyt
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);

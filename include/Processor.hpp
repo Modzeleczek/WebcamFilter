@@ -10,12 +10,13 @@
 class Processor // klasa abstrakcyjna
 {
 protected:
-    const uint8_t *Input;
+    uint8_t *const Input;
     const int Width, Height;
 
     Processor(IBuffer *source);
     virtual ~Processor();
 
+public:
     virtual void ProcessFrame() = 0;
 };
 

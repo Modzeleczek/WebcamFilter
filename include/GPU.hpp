@@ -7,14 +7,16 @@
 class GPU : public Processor
 {
 private:
-    const uint8_t *Output;
+    uint8_t *const Output;
     unsigned int Program, VAO, VBO, EBO, Texture1, FBO, RBO;
 
 public:
     GPU(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
-    ~GPU();
+    virtual ~GPU();
 
-    void ProcessFrame() override;
+    void UploadFrame();
+    virtual void ProcessFrame() override;
+    void DownloadFrame();
 private:
     void CheckShaderCompileStatus(unsigned int handle);
     void CheckProgramLinkStatus(unsigned int handle);

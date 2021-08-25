@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int saveBinary(const char *fileName, const uint8_t *const buffer, const long length)
+int SaveBinary(const char *fileName, const uint8_t *const buffer, const long length)
 {
     FILE *file = fopen(fileName, "wb");
     if (file == NULL)
@@ -16,7 +16,7 @@ int saveBinary(const char *fileName, const uint8_t *const buffer, const long len
     return ret;
 }
 
-int loadBinary(const char *fileName, uint8_t **buffer, long *length)
+int LoadBinary(const char *fileName, uint8_t **buffer, long *length)
 {
     FILE *file = fopen(fileName, "rb");
     if (file == NULL)
@@ -45,7 +45,7 @@ int loadBinary(const char *fileName, uint8_t **buffer, long *length)
     return 0;
 }
 
-int loadText(const char *fileName, char **buffer)
+int LoadText(const char *fileName, char **buffer)
 {
     FILE *file = fopen(fileName, "r");
     if (file == NULL)
