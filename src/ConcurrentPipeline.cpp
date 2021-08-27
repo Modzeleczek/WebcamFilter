@@ -1,8 +1,5 @@
 #include "../include/ConcurrentPipeline.hpp"
 
-// #define info(number, letter) (printf("%i - %c\n", number, letter))
-#define info(number, letter) // no-operation
-
 ConcurrentPipeline::ConcurrentPipeline(OpenGLContext &context, ISource &source, CPU &cpu, GPU &gpu, ITarget &target) :
     Pipeline(context, source, cpu, gpu, target)
 {
@@ -16,8 +13,8 @@ ConcurrentPipeline::~ConcurrentPipeline() {}
 
 void ConcurrentPipeline::Start()
 {
-    FrameReadyToBeProcessed = false;
-    FrameReadyToBeDownloaded = false;
+    FrameReadyForGPU = false;
+    FrameReadyForTarget = false;
     Running = true;
     pthread_t downloader, uploader;
     pthread_create(&downloader, NULL, Download, this);
@@ -27,26 +24,36 @@ void ConcurrentPipeline::Start()
     pthread_join(uploader, NULL);
 }
 
+#ifdef DEBUG
+    #include <stdio.h>
+    #define operationInfo(number, letter) (printf("%i - %c\n", number, letter))
+    #define threadEndInfo(name) (printf("%s thread ended\n", name))
+#else
+    #define operationInfo(number, letter) // no-operation
+    #define threadEndInfo(name) // no-operation
+#endif
+
 void* ConcurrentPipeline::Download(void* caller)
 {
     ConcurrentPipeline &mp = *((ConcurrentPipeline*)caller);
-    mp.Context.UseOnCurrentThread();
     while (mp.Running == true)
     {
-        info(1, 's');
+        pthread_mutex_lock(&mp.Mutex1);
+        if (mp.FrameReadyForGPU == true) // bez tego wykonuje się tylko wątek Download, a wątek główny i Upload ulegają zagłodzeniu
+            pthread_cond_wait(&mp.Cond1, &mp.Mutex1);
+        mp.FrameReadyForGPU = false;
+        operationInfo(1, 's');
         mp.Source.DownloadFrame();
         mp.Cpu.ProcessFrame();
-        info(1, 'e');
-
-        pthread_mutex_lock(&mp.Mutex1);
-        mp.FrameReadyToBeProcessed = false;
-        info(2, 's');
-        mp.Gpu.UploadFrame();
-        info(2, 'e');
-        mp.FrameReadyToBeProcessed = true;
+        operationInfo(1, 'e');
+        mp.FrameReadyForGPU = true;
         pthread_cond_signal(&mp.Cond1);
         pthread_mutex_unlock(&mp.Mutex1);
     }
+    threadEndInfo("Download");
+    // ustawiamy flagę i sygnalizujemy zmienną warunkową, aby wątek Process się nie zablokował
+    mp.FrameReadyForGPU = true;
+    pthread_cond_signal(&mp.Cond1);
     return NULL;
 }
 
@@ -55,39 +62,48 @@ void ConcurrentPipeline::Process()
     while (Running == true)
     {
         pthread_mutex_lock(&Mutex1);
-        if (FrameReadyToBeProcessed == false)
+        if (FrameReadyForGPU == false)
             pthread_cond_wait(&Cond1, &Mutex1);
-        pthread_mutex_lock(&Mutex2);
-        FrameReadyToBeDownloaded = false;
-        info(3, 's');
+        operationInfo(2, 's');
+        Gpu.UploadFrame();
+        operationInfo(2, 'e');
+        FrameReadyForGPU = false;
+        pthread_cond_signal(&Cond1); // jak wyżej
+        pthread_mutex_unlock(&Mutex1);
+
+        operationInfo(3, 's');
         Gpu.ProcessFrame();
-        info(3, 'e');
-        FrameReadyToBeProcessed = false;
-        FrameReadyToBeDownloaded = true;
+        operationInfo(3, 'e');
+
+        pthread_mutex_lock(&Mutex2);
+        FrameReadyForTarget = false;
+        operationInfo(4, 's');
+        Gpu.DownloadFrame();
+        operationInfo(4, 'e');
+        FrameReadyForTarget = true;
         pthread_cond_signal(&Cond2);
         pthread_mutex_unlock(&Mutex2);
-        pthread_mutex_unlock(&Mutex1);
     }
+    threadEndInfo("Process");
+    // ustawiamy flagę i sygnalizujemy zmienną warunkową, aby wątek Upload się nie zablokował
+    FrameReadyForTarget = true;
+    pthread_cond_signal(&Cond2);
 }
 
 void* ConcurrentPipeline::Upload(void* caller)
 {
     ConcurrentPipeline &mp = *((ConcurrentPipeline*)caller);
-    mp.Context.UseOnCurrentThread();
     while (mp.Running == true)
     {
         pthread_mutex_lock(&mp.Mutex2);
-        if (mp.FrameReadyToBeDownloaded == false)
+        if (mp.FrameReadyForTarget == false)
             pthread_cond_wait(&mp.Cond2, &mp.Mutex2);
-        info(4, 's');
-        mp.Gpu.DownloadFrame();
-        info(4, 'e');
-        mp.FrameReadyToBeDownloaded = false;
-        pthread_mutex_unlock(&mp.Mutex2);
-
-        info(5, 's');
+        operationInfo(5, 's');
         mp.Target.UploadFrame();
-        info(5, 'e');
+        operationInfo(5, 'e');
+        mp.FrameReadyForTarget = false;
+        pthread_mutex_unlock(&mp.Mutex2);
     }
+    threadEndInfo("Upload");
     return NULL;
 }

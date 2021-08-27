@@ -10,7 +10,7 @@ class ConcurrentPipeline : public Pipeline
 private:
     pthread_mutex_t Mutex1, Mutex2;
     pthread_cond_t Cond1, Cond2;
-    bool FrameReadyToBeProcessed, FrameReadyToBeDownloaded;
+    bool FrameReadyForGPU, FrameReadyForTarget;
 
 public:
     ConcurrentPipeline(OpenGLContext &context, ISource &source, CPU &cpu, GPU &gpu, ITarget &target);
