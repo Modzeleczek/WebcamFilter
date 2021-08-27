@@ -19,4 +19,4 @@ public:
     virtual void DownloadFrame() override;
 };
 
-#endif // Webcam
+#endif // Webcam_HPP
