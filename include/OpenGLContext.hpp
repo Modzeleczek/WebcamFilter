@@ -14,6 +14,7 @@ public:
     ~OpenGLContext();
 
     void UseOnCurrentThread();
+    void PrintGPUInfo();
 };
 
 #endif // OpenGLContext_HPP
