@@ -1,4 +1,4 @@
-#include "../include/GPU.hpp"
+#include "../include/OutOfPlaceProcessor.hpp"
 #include "../include/FileIO.hpp"
 
 #include <GL/glew.h>
@@ -10,14 +10,14 @@ struct Vertex
     float Position[2], TextureCoord[2];
 };
 
-GPU::GPU(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
+OutOfPlaceProcessor::OutOfPlaceProcessor(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
     Processor(source),
     Output(target->GetBuffer())
 {
     if (Width != target->GetWidth())
-        throw std::runtime_error("GPU::GPU; Source and target have different width.");
+        throw std::runtime_error("OutOfPlaceProcessor::OutOfPlaceProcessor; Source and target have different width.");
     if (Height != target->GetHeight())
-        throw std::runtime_error("GPU::GPU; Source and target have different height.");
+        throw std::runtime_error("OutOfPlaceProcessor::OutOfPlaceProcessor; Source and target have different height.");
 
     CreateTexture();
     CreateProgram(vertexShaderFilePath, fragmentShaderFilePath);
@@ -33,7 +33,7 @@ GPU::GPU(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, con
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }
 
-GPU::~GPU()
+OutOfPlaceProcessor::~OutOfPlaceProcessor()
 {
     glDeleteRenderbuffers(1, &RBO);
     glDeleteFramebuffers(1, &FBO);
@@ -44,14 +44,14 @@ GPU::~GPU()
     glDeleteTextures(1, &Texture1);
 }
 
-void GPU::UploadFrame()
+void OutOfPlaceProcessor::UploadFrame()
 {
     // przesyłamy klatkę do pamięci GPU jako teksturę
     // glTexImage2D rezerwuje nową pamięć dla aktualnie zbindowanego uchwytu tekstury w GPU, a glTexSubImage2D tylko aktualizuje jej istniejącą pamięć
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, Input); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy WIDTH / 2
 }
 
-void GPU::ProcessFrame()
+void OutOfPlaceProcessor::ProcessFrame()
 {
     // aktywujemy jednostkę teksturującą (texture unit) o indeksie 0; nie trzeba tego robić, bo texture unit o indeksie 0 jest zawsze domyślnie aktywny; jeżeli używalibyśmy kilku tekstur jednocześnie, to musielibyśmy kolejno aktywować texture unit o indeksie n i zbindować do niego wybraną teksturę, a następnie to samo zrobić dla texture unita o indeksie n+1
     // glActiveTexture(GL_TEXTURE0);
@@ -64,12 +64,12 @@ void GPU::ProcessFrame()
     // glBindVertexArray(0);
 }
 
-void GPU::DownloadFrame()
+void OutOfPlaceProcessor::DownloadFrame()
 {
     glReadPixels(0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, Output);
 }
 
-void GPU::CheckShaderCompileStatus(unsigned int handle)
+void OutOfPlaceProcessor::CheckShaderCompileStatus(unsigned int handle)
 {
     int success;
     glGetShaderiv(handle, GL_COMPILE_STATUS, &success);
@@ -77,10 +77,10 @@ void GPU::CheckShaderCompileStatus(unsigned int handle)
         return;
     char infoLog[512];
     glGetShaderInfoLog(handle, 512, NULL, infoLog);
-    throw std::runtime_error(std::string("GPU::CheckShaderStatus; Shader was not compiled successfully.\n") + infoLog);
+    throw std::runtime_error(std::string("OutOfPlaceProcessor::CheckShaderStatus; Shader was not compiled successfully.\n") + infoLog);
 }
 
-void GPU::CheckProgramLinkStatus(unsigned int handle)
+void OutOfPlaceProcessor::CheckProgramLinkStatus(unsigned int handle)
 {
     int success;
     glGetProgramiv(handle, GL_LINK_STATUS, &success);
@@ -88,10 +88,10 @@ void GPU::CheckProgramLinkStatus(unsigned int handle)
         return;
     char infoLog[512];
     glGetProgramInfoLog(handle, 512, NULL, infoLog);
-    throw std::runtime_error(std::string("GPU::CheckProgramLinkStatus; Program was not linked successfully.\n") + infoLog);
+    throw std::runtime_error(std::string("OutOfPlaceProcessor::CheckProgramLinkStatus; Program was not linked successfully.\n") + infoLog);
 }
 
-void GPU::CreateTexture() // tworzymy teksturę, do której przekazujemy klatkę pobraną z kamery
+void OutOfPlaceProcessor::CreateTexture() // tworzymy teksturę, do której przekazujemy klatkę pobraną z kamery
 {
     glGenTextures(1, &Texture1);
     // bindujemy teksturę, ponieważ będziemy wykonywać na niej operacje
@@ -107,12 +107,12 @@ void GPU::CreateTexture() // tworzymy teksturę, do której przekazujemy klatkę
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width / 2, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy width / 2
 }
 
-void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShaderPath) // kompilujemy shadery i linkujemy je do programu
+void OutOfPlaceProcessor::CreateProgram(const char *vertexShaderPath, const char *fragmentShaderPath) // kompilujemy shadery i linkujemy je do programu
 {
     // kod vertex shadera wykonywany dla każdego wierzchołka umieszczonego w buforze VBO
     char *vertexShaderCode = NULL;
     if (LoadText(vertexShaderPath, &vertexShaderCode) < 0)
-        throw std::runtime_error(std::string("GPU::CreateProgram; Failed to load vertex shader code from file ") + vertexShaderPath);
+        throw std::runtime_error(std::string("OutOfPlaceProcessor::CreateProgram; Failed to load vertex shader code from file ") + vertexShaderPath);
     // tworzymy nowy vertex shader w GPU i zapisujemy do niego uchwyt
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     // przekazujemy kod do utworzonego shadera
@@ -126,7 +126,7 @@ void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShader
     // kod fragment shadera wykonywany dla każdego piksela wyświetlanej figury (tutaj prostokąta)
     char *fragmentShaderCode = NULL;
     if (LoadText(fragmentShaderPath, &fragmentShaderCode) < 0)
-        throw std::runtime_error(std::string("GPU::CreateProgram; Failed to load fragment shader code from file ") + vertexShaderPath);
+        throw std::runtime_error(std::string("OutOfPlaceProcessor::CreateProgram; Failed to load fragment shader code from file ") + vertexShaderPath);
     // tworzymy nowy fragment shader w GPU i zapisujemy do niego uchwyt
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     // przekazujemy kod do utworzonego shadera
@@ -141,7 +141,7 @@ void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShader
     Program = glCreateProgram();
     // sprawdzamy, czy program został prawidłowo stworzony
     if (Program == 0)
-        throw std::runtime_error("GPU::CreateProgram; Failed to create shader program.");
+        throw std::runtime_error("OutOfPlaceProcessor::CreateProgram; Failed to create shader program.");
     // przyłączamy vertex shader do programu
     glAttachShader(Program, vertexShader);
     // przyłączamy fragment shader do programu
@@ -156,18 +156,18 @@ void GPU::CreateProgram(const char *vertexShaderPath, const char *fragmentShader
     glDeleteShader(fragmentShader);
 }
 
-void GPU::SetConstantUniforms() // nadajemy wartości stałym typu uniform we fragment shaderze aktywnego shader programu
+void OutOfPlaceProcessor::SetConstantUniforms() // nadajemy wartości stałym typu uniform we fragment shaderze aktywnego shader programu
 {
     // zapisujemy uchwyt (handle) do zmiennej typu uniform występującej we fragment shaderze (uniform sampler2D texture1)
     int texture1Sampler2D = glGetUniformLocation(Program, "texture1");
-    // mając aktywny wybrany shader program, zapisujemy w tej zmiennej indeks texture unita, który odpowiada za wczytaną przez CPU teksturę texture1; za pomocą tego indeksu odwołujemy się we fragment shaderze do texture unita, aby samplować teksturę wczytaną w tym texture unicie
+    // mając aktywny wybrany shader program, zapisujemy w tej zmiennej indeks texture unita, który odpowiada za wczytaną przez GPU teksturę texture1; za pomocą tego indeksu odwołujemy się we fragment shaderze do texture unita, aby samplować teksturę wczytaną w tym texture unicie
     glUniform1i(texture1Sampler2D, 0);
 
     int size = glGetUniformLocation(Program, "size");
     glUniform2i(size, Width - 1, Height - 1);
 }
 
-void GPU::CreateRectangle()
+void OutOfPlaceProcessor::CreateRectangle()
 {
     // VAO tworzy się dla każdego obiektu renderowanego na scenie; my renderujemy tylko 1 prostokąt pokrywający cały ekran, więc tworzymy tylko 1 VAO; łączymy VBO z VAO; zapisujemy atrybuty wierzchołków  VBO; do zapisanych wartości odwołujemy się poprzez zmienne typu attribute występujące w vertex shaderze programu
     glGenVertexArrays(1, &VAO);
@@ -222,7 +222,7 @@ void GPU::CreateRectangle()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void GPU::CreateFramebuffer() // tworzymy Framebuffer Object (FBO) i Render Buffer Object (RBO) jako color attachment do FBO
+void OutOfPlaceProcessor::CreateFramebuffer() // tworzymy Framebuffer Object (FBO) i Render Buffer Object (RBO) jako color attachment do FBO
 {
     // tworzymy uchwyt do FBO
     glGenFramebuffers(1, &FBO);
@@ -243,7 +243,7 @@ void GPU::CreateFramebuffer() // tworzymy Framebuffer Object (FBO) i Render Buff
 
     // sprawdzamy, czy FBO jest kompletne
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        throw std::runtime_error("GPU::CreateFramebuffer; Framebuffer is not complete.");
+        throw std::runtime_error("OutOfPlaceProcessor::CreateFramebuffer; Framebuffer is not complete.");
     // odbindowujemy FBO
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

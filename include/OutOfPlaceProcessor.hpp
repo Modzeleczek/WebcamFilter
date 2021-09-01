@@ -1,18 +1,18 @@
-#ifndef GPU_HPP
-#define GPU_HPP
+#ifndef OutOfPlaceProcessor_HPP
+#define OutOfPlaceProcessor_HPP
 
 #include "IBuffer.hpp"
 #include "Processor.hpp"
 
-class GPU : public Processor
+class OutOfPlaceProcessor : public Processor
 {
 private:
     uint8_t *const Output;
     unsigned int Program, VAO, VBO, EBO, Texture1, FBO, RBO;
 
 public:
-    GPU(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
-    virtual ~GPU();
+    OutOfPlaceProcessor(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
+    virtual ~OutOfPlaceProcessor();
 
     void UploadFrame();
     virtual void ProcessFrame() override;
@@ -27,4 +27,4 @@ private:
     void CreateFramebuffer();
 };
 
-#endif // GPU_HPP
+#endif // OutOfPlaceProcessor_HPP

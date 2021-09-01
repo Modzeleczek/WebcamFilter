@@ -1,7 +1,7 @@
 #include "../include/Webcam.hpp"
 #include "../include/VideoLoopback.hpp"
-#include "../include/GPU.hpp"
-#include "../include/CPU.hpp"
+#include "../include/OutOfPlaceProcessor.hpp"
+#include "../include/InPlaceProcessor.hpp"
 #include "../include/Pipeline.hpp"
 #include "../include/ConcurrentPipeline.hpp"
 
@@ -30,19 +30,19 @@ int main()
 
     const int width = 160 * 4; // * 1, 2, 4, 5, 8
     const int height = 120 * 4; // * 1, 2, 4, 5, 6
-    Webcam webcam("/dev/video0", width, height);
-    VideoLoopback videoLoopback("/dev/video2", width, height);
+    Webcam source("/dev/video0", width, height);
+    VideoLoopback target("/dev/video2", width, height);
     OpenGLContext context(width, height);
     context.UseOnCurrentThread();
-    CPU cpu(&webcam);
-    GPU gpu(&webcam, &videoLoopback, "camera_shaders/rectangle.vert", "camera_shaders/identity.frag");
+    InPlaceProcessor cpu(&source);
+    OutOfPlaceProcessor gpu(&source, &target, "camera_shaders/rectangle.vert", "camera_shaders/identity.frag");
 
-    webcam.StartStreaming();
-    videoLoopback.StartStreaming();
-    ConcurrentPipeline p(context, webcam, cpu, gpu, videoLoopback);
+    source.StartStreaming();
+    target.StartStreaming();
+    ConcurrentPipeline p(context, source, cpu, gpu, target);
     program = &p;
     program->Start();
-    webcam.StopStreaming();
-    videoLoopback.StopStreaming();
+    source.StopStreaming();
+    target.StopStreaming();
     return 0;
 }

@@ -1,10 +1,10 @@
 #include "../include/Pipeline.hpp"
 
-Pipeline::Pipeline(OpenGLContext &context, ISource &source, CPU &cpu, GPU &gpu, ITarget &target) :
+Pipeline::Pipeline(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target) :
     Context(context),
     Source(source),
-    Cpu(cpu),
-    Gpu(gpu),
+    IPP(ipp),
+    OOPP(oopp),
     Target(target),
     Running(false)
 {}
@@ -17,10 +17,10 @@ void Pipeline::Start()
     while (Running == true)
     {
         Source.DownloadFrame();
-        Cpu.ProcessFrame();
-        Gpu.UploadFrame();
-        Gpu.ProcessFrame();
-        Gpu.DownloadFrame();
+        IPP.ProcessFrame();
+        OOPP.UploadFrame();
+        OOPP.ProcessFrame();
+        OOPP.DownloadFrame();
         Target.UploadFrame();
     }
 }

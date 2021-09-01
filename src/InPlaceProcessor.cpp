@@ -1,16 +1,16 @@
-#include "../include/CPU.hpp"
+#include "../include/InPlaceProcessor.hpp"
 
 #include <stdlib.h>
 
-CPU::CPU(IBuffer *sourceTarget) :
+InPlaceProcessor::InPlaceProcessor(IBuffer *sourceTarget) :
     Processor(sourceTarget)
 {
     RandomizeLine();
 }
 
-CPU::~CPU() {}
+InPlaceProcessor::~InPlaceProcessor() {}
 
-void CPU::ProcessFrame()
+void InPlaceProcessor::ProcessFrame()
 {
     if (Frame >= 30 * 3)
         RandomizeLine(); // generujemy losowe parametry linii
@@ -19,7 +19,7 @@ void CPU::ProcessFrame()
     DrawLine(); // rysujemy linię
 }
 
-void CPU::RandomizeLine()
+void InPlaceProcessor::RandomizeLine()
 {
     Y = rand() & 255;
     U = rand() & 255;
@@ -31,7 +31,7 @@ void CPU::RandomizeLine()
     Frame = 0;
 }
 
-void CPU::DrawLine()
+void InPlaceProcessor::DrawLine()
 {
     int x = StartX, y = StartY;
     int w = EndX - x;

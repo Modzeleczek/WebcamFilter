@@ -3,8 +3,8 @@
 
 #include "OpenGLContext.hpp"
 #include "ISource.hpp"
-#include "CPU.hpp"
-#include "GPU.hpp"
+#include "InPlaceProcessor.hpp"
+#include "OutOfPlaceProcessor.hpp"
 #include "ITarget.hpp"
 
 class Pipeline
@@ -12,13 +12,13 @@ class Pipeline
 protected:
     OpenGLContext &Context;
     ISource &Source;
-    CPU &Cpu;
-    GPU &Gpu;
+    InPlaceProcessor &IPP;
+    OutOfPlaceProcessor &OOPP;
     ITarget &Target;
     bool Running;
 
 public:
-    Pipeline(OpenGLContext &context, ISource &source, CPU &cpu, GPU &gpu, ITarget &target);
+    Pipeline(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target);
     Pipeline(const Pipeline &) = delete;
     virtual ~Pipeline();
 
