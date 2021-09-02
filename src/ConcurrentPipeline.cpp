@@ -3,11 +3,10 @@
 #include <unistd.h>
 
 ConcurrentPipeline::ConcurrentPipeline(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target) :
-    Pipeline(context, source, ipp, oopp, target)
+    ConcurrentSink(context, source, ipp, oopp),
+    Target(target)
 {
-    pthread_mutex_init(&Mutex1, NULL);
     pthread_mutex_init(&Mutex2, NULL);
-    pthread_cond_init(&Cond1, NULL);
     pthread_cond_init(&Cond2, NULL);
 }
 
@@ -35,31 +34,6 @@ void ConcurrentPipeline::Start()
     #define operationInfo(number, letter) // no-operation
     #define threadEndInfo(name) // no-operation
 #endif
-
-void* ConcurrentPipeline::Download(void* caller)
-{
-    ConcurrentPipeline &mp = *((ConcurrentPipeline*)caller);
-    while (mp.Running == true)
-    {
-        pthread_mutex_lock(&mp.Mutex1);
-        if (mp.FrameReadyForOOPP == true) // bez tego wykonuje się tylko wątek Download, a wątek główny i Upload ulegają zagłodzeniu
-            pthread_cond_wait(&mp.Cond1, &mp.Mutex1);
-        mp.FrameReadyForOOPP = false;
-        operationInfo(1, 's');
-        mp.Source.DownloadFrame();
-        mp.IPP.ProcessFrame();
-        operationInfo(1, 'e');
-        mp.FrameReadyForOOPP = true;
-        pthread_cond_signal(&mp.Cond1);
-        pthread_mutex_unlock(&mp.Mutex1);
-        usleep(20000);
-    }
-    threadEndInfo("Download");
-    // ustawiamy flagę i sygnalizujemy zmienną warunkową, aby wątek Process się nie zablokował
-    mp.FrameReadyForOOPP = true;
-    pthread_cond_signal(&mp.Cond1);
-    return NULL;
-}
 
 void ConcurrentPipeline::Process()
 {

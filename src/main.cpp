@@ -2,7 +2,7 @@
 #include "../include/VideoLoopback.hpp"
 #include "../include/OutOfPlaceProcessor.hpp"
 #include "../include/InPlaceProcessor.hpp"
-#include "../include/Pipeline.hpp"
+#include "../include/SequentialPipeline.hpp"
 #include "../include/ConcurrentPipeline.hpp"
 
 #include <stdio.h>
@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <string.h>
 
-Pipeline *program;
+Runner *program;
 void SigintHandler(int signo)
 {
     (void)signo; // żeby gcc nie wyrzucał warninga, że parametr jest nieużywany
