@@ -25,4 +25,3 @@ private:
 };
 
 #endif // ConcurrentSink_HPP
-
