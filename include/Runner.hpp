@@ -1,7 +1,6 @@
 #ifndef Runner_HPP
 #define Runner_HPP
 
-#include "OpenGLContext.hpp"
 #include "ISource.hpp"
 #include "InPlaceProcessor.hpp"
 #include "OutOfPlaceProcessor.hpp"
@@ -10,14 +9,14 @@
 class Runner // klasa abstrakcyjna
 {
 protected:
-    OpenGLContext &Context;
     ISource &Source;
     InPlaceProcessor &IPP;
     OutOfPlaceProcessor &OOPP;
     bool Running;
+    ITarget &Target;
 
 protected:
-    Runner(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp);
+    Runner(ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target);
 public:
     Runner(const Runner &) = delete;
     virtual ~Runner();

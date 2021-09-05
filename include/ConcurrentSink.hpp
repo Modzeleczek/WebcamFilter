@@ -13,7 +13,7 @@ protected:
     bool FrameReadyForOOPP;
 
 public:
-    ConcurrentSink(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp);
+    ConcurrentSink(ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target);
     ConcurrentSink(const ConcurrentSink &) = delete;
     virtual ~ConcurrentSink();
 

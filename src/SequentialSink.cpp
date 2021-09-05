@@ -1,7 +1,7 @@
 #include "../include/SequentialSink.hpp"
 
-SequentialSink::SequentialSink(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp) :
-    Runner(context, source, ipp, oopp)
+SequentialSink::SequentialSink(ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target) :
+    Runner(source, ipp, oopp, target)
 {}
 
 SequentialSink::~SequentialSink() {}

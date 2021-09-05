@@ -2,9 +2,8 @@
 
 #include <unistd.h>
 
-ConcurrentPipeline::ConcurrentPipeline(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target) :
-    ConcurrentSink(context, source, ipp, oopp),
-    Target(target)
+ConcurrentPipeline::ConcurrentPipeline(ISource &source, InPlaceProcessor &ipp, ReturningProcessor &rp, ITarget &target) :
+    ConcurrentSink(source, ipp, rp, target)
 {
     pthread_mutex_init(&Mutex2, NULL);
     pthread_cond_init(&Cond2, NULL);
@@ -37,26 +36,27 @@ void ConcurrentPipeline::Start()
 
 void ConcurrentPipeline::Process()
 {
+    ReturningProcessor &RP = static_cast<ReturningProcessor&>(OOPP);
     while (Running == true)
     {
         pthread_mutex_lock(&Mutex1);
         if (FrameReadyForOOPP == false)
             pthread_cond_wait(&Cond1, &Mutex1);
         operationInfo(2, 's');
-        OOPP.UploadFrame();
+        RP.UploadFrame();
         operationInfo(2, 'e');
         FrameReadyForOOPP = false;
         pthread_cond_signal(&Cond1); // jak wyżej
         pthread_mutex_unlock(&Mutex1);
 
         operationInfo(3, 's');
-        OOPP.ProcessFrame();
+        RP.ProcessFrame();
         operationInfo(3, 'e');
 
         pthread_mutex_lock(&Mutex2);
         FrameReadyForTarget = false;
         operationInfo(4, 's');
-        OOPP.DownloadFrame();
+        RP.DownloadFrame();
         operationInfo(4, 'e');
         FrameReadyForTarget = true;
         pthread_cond_signal(&Cond2);

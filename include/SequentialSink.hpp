@@ -3,10 +3,10 @@
 
 #include "Runner.hpp"
 
-class SequentialSink : public Runner // przetwarzanie sekwencyjne bez bufora wyjściowego
+class SequentialSink : public Runner // przetwarzanie sekwencyjne bez bufora wyjściowego, do którego byśmy jawnie zapisywali w niniejszym programie
 {
 public:
-    SequentialSink(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp);
+    SequentialSink(ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target);
     SequentialSink(const SequentialSink &) = delete;
     virtual ~SequentialSink();
 

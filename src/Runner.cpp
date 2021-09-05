@@ -1,11 +1,11 @@
 #include "../include/Runner.hpp"
 
-Runner::Runner(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp) :
-    Context(context),
+Runner::Runner(ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target) :
     Source(source),
     IPP(ipp),
     OOPP(oopp),
-    Running(false)
+    Running(false),
+    Target(target)
 {}
 
 Runner::~Runner() {}

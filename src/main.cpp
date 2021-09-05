@@ -1,5 +1,6 @@
 #include "../include/Webcam.hpp"
 #include "../include/VideoLoopback.hpp"
+#include "../include/OpenGLContext.hpp"
 #include "../include/OutOfPlaceProcessor.hpp"
 #include "../include/InPlaceProcessor.hpp"
 #include "../include/SequentialPipeline.hpp"
@@ -35,11 +36,11 @@ int main()
     OpenGLContext context(width, height);
     context.UseOnCurrentThread();
     InPlaceProcessor cpu(&source);
-    OutOfPlaceProcessor gpu(&source, &target, "camera_shaders/rectangle.vert", "camera_shaders/identity.frag");
+    ReturningProcessor gpu(&source, &target, "camera_shaders/rectangle.vert", "camera_shaders/identity.frag");
 
     source.StartStreaming();
     target.StartStreaming();
-    ConcurrentPipeline p(context, source, cpu, gpu, target);
+    ConcurrentPipeline p(source, cpu, gpu, target);
     program = &p;
     program->Start();
     source.StopStreaming();

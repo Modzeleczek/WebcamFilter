@@ -1,9 +1,11 @@
 #include "../include/ConcurrentSink.hpp"
 
 #include <unistd.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
-ConcurrentSink::ConcurrentSink(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp) :
-    Runner(context, source, ipp, oopp)
+ConcurrentSink::ConcurrentSink(ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target) :
+    Runner(source, ipp, oopp, target)
 {
     pthread_mutex_init(&Mutex1, NULL);
     pthread_cond_init(&Cond1, NULL);
@@ -47,7 +49,7 @@ void* ConcurrentSink::Download(void* caller)
         mp.FrameReadyForOOPP = true;
         pthread_cond_signal(&mp.Cond1);
         pthread_mutex_unlock(&mp.Mutex1);
-        usleep(1000);
+        // usleep(1000);
     }
     threadEndInfo("Download");
     // ustawiamy flagę i sygnalizujemy zmienną warunkową, aby wątek Process się nie zablokował
@@ -73,6 +75,10 @@ void ConcurrentSink::Process()
         operationInfo(3, 's');
         OOPP.ProcessFrame();
         operationInfo(3, 'e');
+
+        operationInfo(4, 's');
+        Target.UploadFrame(); // wyświetlamy przetworzoną klatkę
+        operationInfo(4, 'e');
     }
     threadEndInfo("Process");
     // ustawiamy flagę i sygnalizujemy zmienną warunkową, aby wątek Download się nie zablokował

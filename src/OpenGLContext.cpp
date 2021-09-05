@@ -3,7 +3,9 @@
 #include <stdexcept>
 #include <GL/glew.h>
 
-OpenGLContext::OpenGLContext(int width, int height)
+OpenGLContext::OpenGLContext(int width, int height) :
+    Width(width),
+    Height(height)
 {
     if (glfwInit() == GLFW_FALSE)
         throw std::runtime_error("OpenGLContext::OpenGLContext; glfwInit");
@@ -15,6 +17,12 @@ OpenGLContext::OpenGLContext(int width, int height)
     if (Window == NULL)
         throw std::runtime_error("OpenGLContext::OpenGLContext; glfwCreateWindow");
 }
+
+OpenGLContext::OpenGLContext(const OpenGLContext &object) :
+    Window(object.Window),
+    Width(object.Width),
+    Height(object.Height)
+{}
 
 OpenGLContext::~OpenGLContext()
 {

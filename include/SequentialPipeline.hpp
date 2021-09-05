@@ -2,14 +2,12 @@
 #define SequentialPipeline_HPP
 
 #include "SequentialSink.hpp"
+#include "ReturningProcessor.hpp"
 
-class SequentialPipeline : public SequentialSink
+class SequentialPipeline : public SequentialSink // przetwarzanie sekwencyjne z zapisem do bufora wyjściowego
 {
-private:
-    ITarget &Target; // przetwarzanie sekwencyjne z zapisem do bufora wyjściowego
-
 public:
-    SequentialPipeline(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target);
+    SequentialPipeline(ISource &source, InPlaceProcessor &ipp, ReturningProcessor &rp, ITarget &target);
     SequentialPipeline(const SequentialPipeline &) = delete;
     virtual ~SequentialPipeline();
 

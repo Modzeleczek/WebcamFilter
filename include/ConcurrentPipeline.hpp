@@ -2,6 +2,7 @@
 #define ConcurrentPipeline_HPP
 
 #include "ConcurrentSink.hpp"
+#include "ReturningProcessor.hpp"
 
 #include <pthread.h>
 
@@ -11,10 +12,9 @@ private:
     pthread_mutex_t Mutex2;
     pthread_cond_t Cond2;
     bool FrameReadyForTarget;
-    ITarget &Target;
 
 public:
-    ConcurrentPipeline(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target);
+    ConcurrentPipeline(ISource &source, InPlaceProcessor &ipp, ReturningProcessor &rp, ITarget &target);
     ConcurrentPipeline(const ConcurrentPipeline &) = delete;
     virtual ~ConcurrentPipeline();
 
