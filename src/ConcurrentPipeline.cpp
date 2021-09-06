@@ -2,12 +2,10 @@
 
 #include <unistd.h>
 
-ConcurrentPipeline::ConcurrentPipeline(OpenGLContext &context, ISource &source, InPlaceProcessor &ipp, OutOfPlaceProcessor &oopp, ITarget &target) :
-    Pipeline(context, source, ipp, oopp, target)
+ConcurrentPipeline::ConcurrentPipeline(ISource &source, InPlaceProcessor &ipp, ReturningProcessor &rp, ITarget &target) :
+    ConcurrentSink(source, ipp, rp, target)
 {
-    pthread_mutex_init(&Mutex1, NULL);
     pthread_mutex_init(&Mutex2, NULL);
-    pthread_cond_init(&Cond1, NULL);
     pthread_cond_init(&Cond2, NULL);
 }
 
@@ -36,53 +34,29 @@ void ConcurrentPipeline::Start()
     #define threadEndInfo(name) // no-operation
 #endif
 
-void* ConcurrentPipeline::Download(void* caller)
-{
-    ConcurrentPipeline &mp = *((ConcurrentPipeline*)caller);
-    while (mp.Running == true)
-    {
-        pthread_mutex_lock(&mp.Mutex1);
-        if (mp.FrameReadyForOOPP == true) // bez tego wykonuje się tylko wątek Download, a wątek główny i Upload ulegają zagłodzeniu
-            pthread_cond_wait(&mp.Cond1, &mp.Mutex1);
-        mp.FrameReadyForOOPP = false;
-        operationInfo(1, 's');
-        mp.Source.DownloadFrame();
-        mp.IPP.ProcessFrame();
-        operationInfo(1, 'e');
-        mp.FrameReadyForOOPP = true;
-        pthread_cond_signal(&mp.Cond1);
-        pthread_mutex_unlock(&mp.Mutex1);
-        usleep(20000);
-    }
-    threadEndInfo("Download");
-    // ustawiamy flagę i sygnalizujemy zmienną warunkową, aby wątek Process się nie zablokował
-    mp.FrameReadyForOOPP = true;
-    pthread_cond_signal(&mp.Cond1);
-    return NULL;
-}
-
 void ConcurrentPipeline::Process()
 {
+    ReturningProcessor &RP = static_cast<ReturningProcessor&>(OOPP);
     while (Running == true)
     {
         pthread_mutex_lock(&Mutex1);
         if (FrameReadyForOOPP == false)
             pthread_cond_wait(&Cond1, &Mutex1);
         operationInfo(2, 's');
-        OOPP.UploadFrame();
+        RP.UploadFrame();
         operationInfo(2, 'e');
         FrameReadyForOOPP = false;
         pthread_cond_signal(&Cond1); // jak wyżej
         pthread_mutex_unlock(&Mutex1);
 
         operationInfo(3, 's');
-        OOPP.ProcessFrame();
+        RP.ProcessFrame();
         operationInfo(3, 'e');
 
         pthread_mutex_lock(&Mutex2);
         FrameReadyForTarget = false;
         operationInfo(4, 's');
-        OOPP.DownloadFrame();
+        RP.DownloadFrame();
         operationInfo(4, 'e');
         FrameReadyForTarget = true;
         pthread_cond_signal(&Cond2);

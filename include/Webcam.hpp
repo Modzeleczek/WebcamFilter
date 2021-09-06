@@ -12,7 +12,6 @@ public:
     Webcam(const char *devicePath, int frameWidth, int frameHeight);
     virtual ~Webcam();
 
-public:
     virtual uint8_t* GetBuffer() const override;
     virtual int GetWidth() const override;
     virtual int GetHeight() const override;

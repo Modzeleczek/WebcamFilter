@@ -2,41 +2,39 @@
 #include "../include/FileIO.hpp"
 
 #include <GL/glew.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <string.h>
 
-struct Vertex
+OutOfPlaceProcessor::OutOfPlaceProcessor(IBuffer *src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert) :
+    Processor(src)
 {
-    float Position[2], TextureCoord[2];
-};
-
-OutOfPlaceProcessor::OutOfPlaceProcessor(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
-    Processor(source),
-    Output(target->GetBuffer())
-{
-    if (Width != target->GetWidth())
-        throw std::runtime_error("OutOfPlaceProcessor::OutOfPlaceProcessor; Source and target have different width.");
-    if (Height != target->GetHeight())
-        throw std::runtime_error("OutOfPlaceProcessor::OutOfPlaceProcessor; Source and target have different height.");
-
     CreateTexture();
-    CreateProgram(vertexShaderFilePath, fragmentShaderFilePath);
+    CreateProgram(vsPath, fsPath);
     // aktywujemy już zlinkowany program z shaderami, które będą użyte do renderowania trójkątów tworzących prostokąt; w całym programie używamy tylko jednego shader programu i jednego VAO, więc można aktywować shader program w innym miejscu, niekoniecznie tutaj
     glUseProgram(Program);
     SetConstantUniforms();
-    CreateRectangle();
-    CreateFramebuffer();
-
+    CreateRectangle(vert);
     // bindujemy VAO, aby renderować odpowiadający mu prostokąt; w całym programie używamy tylko jednego VAO, więc nie trzeba go bindować w pętli
     glBindVertexArray(VAO);
-    // bindujemy FBO, aby renderować do niego scenę (składającą się tylko z prostokąta)
-    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }
+
+OutOfPlaceProcessor::OutOfPlaceProcessor(IBuffer *source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
+    OutOfPlaceProcessor(source, vertexShaderFilePath, fragmentShaderFilePath,
+        // pozycje wierzchołków prostokąta; tekstura jest odwrócona w pionie
+        {
+            // pozycja wierzchołka w przestrzeni kamery (od -1 do 1)
+                                    // który punkt tekstury powinien znajdować się w danym wierzchołku (od 0 do 1)
+            {1.f, 1.f, /* top right */ 1.f, 0.f}, // bottom right
+            {1.f, -1.f, /* bottom right */ 1.f, 1.f}, // top right
+            {-1.f, -1.f, /* bottom left */ 0.f, 1.f}, // top left
+            {-1.f, 1.f, /* top left */ 0.f, 0.f} // bottom left
+        })
+{}
 
 OutOfPlaceProcessor::~OutOfPlaceProcessor()
 {
-    glDeleteRenderbuffers(1, &RBO);
-    glDeleteFramebuffers(1, &FBO);
     glDeleteBuffers(1, &EBO);
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
@@ -62,11 +60,6 @@ void OutOfPlaceProcessor::ProcessFrame()
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     // nie trzeba za każdym razem odbindowywać VAO, bo używamy tylko jednego VAO
     // glBindVertexArray(0);
-}
-
-void OutOfPlaceProcessor::DownloadFrame()
-{
-    glReadPixels(0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, Output);
 }
 
 void OutOfPlaceProcessor::CheckShaderCompileStatus(unsigned int handle)
@@ -167,29 +160,19 @@ void OutOfPlaceProcessor::SetConstantUniforms() // nadajemy wartości stałym ty
     glUniform2i(size, Width - 1, Height - 1);
 }
 
-void OutOfPlaceProcessor::CreateRectangle()
+void OutOfPlaceProcessor::CreateRectangle(const std::initializer_list<Vertex> &vertices)
 {
     // VAO tworzy się dla każdego obiektu renderowanego na scenie; my renderujemy tylko 1 prostokąt pokrywający cały ekran, więc tworzymy tylko 1 VAO; łączymy VBO z VAO; zapisujemy atrybuty wierzchołków  VBO; do zapisanych wartości odwołujemy się poprzez zmienne typu attribute występujące w vertex shaderze programu
     glGenVertexArrays(1, &VAO);
     // bindujemy VAO, aby następnie połączyć z nim VBO, w którym znajdują się współrzędne wierzchołków i zapisać w VAO konfiguracje atrybutów wierzchołka
     glBindVertexArray(VAO);
 
-    // pozycje wierzchołków prostokąta
-    struct Vertex vertices[4] = // tekstura pokrywa się z prostokątem
-    {
-        // pozycja wierzchołka w przestrzeni kamery (od -1 do 1)
-                    // który punkt tekstury powinien znajdować się w danym wierzchołku (od 0 do 1)
-        1.f, 1.f,  1.f, 1.f, // top right
-        1.f, -1.f,  1.f, 0.f, // bottom right
-        -1.f, -1.f,  0.f, 0.f, // bottom left
-        -1.f, 1.f,  0.f, 1.f // top left
-    };
     // tworzymy Vertex Buffer Object, czyli bufor w GPU, w którym umieścimy współrzędne wierzchołków
     glGenBuffers(1, &VBO);
     // bindujemy VBO, czyli aktywujemy bufor, aby przesłać do niego dane
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // przesyłamy wszystkie atrybuty wierzchołków do bufora
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.begin(), GL_STATIC_DRAW);
 
     // numery kolejnych wierzchołków, z których budujemy prostokąt
     unsigned int indices[] =
@@ -222,28 +205,3 @@ void OutOfPlaceProcessor::CreateRectangle()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void OutOfPlaceProcessor::CreateFramebuffer() // tworzymy Framebuffer Object (FBO) i Render Buffer Object (RBO) jako color attachment do FBO
-{
-    // tworzymy uchwyt do FBO
-    glGenFramebuffers(1, &FBO);
-    // bindujemy FBO zamiast domyślnego Framebuffer Objectu, który jest tworzony wraz z oknem programu i do którego GPU domyślnie renderuje
-    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-    // tworzymy uchwyt do RBO
-    glGenRenderbuffers(1, &RBO);
-    // bindujemy RBO
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    // rezerwujemy pamięć RBO
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, Width / 2, Height);
-    // odbindowujemy RBO, bo zbindowaliśmy uchwyt do niego tylko po to, aby zarezerwować na niego pamięć
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    // dołączamy RBO jako color attachment do FBO
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, RBO);
-
-    // sprawdzamy, czy FBO jest kompletne
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        throw std::runtime_error("OutOfPlaceProcessor::CreateFramebuffer; Framebuffer is not complete.");
-    // odbindowujemy FBO
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}

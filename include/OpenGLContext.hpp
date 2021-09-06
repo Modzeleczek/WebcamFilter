@@ -6,12 +6,14 @@
 
 class OpenGLContext
 {
-private:
+protected:
     GLFWwindow *Window;
+    const int Width, Height;
 
 public:
     OpenGLContext(int width, int height);
-    ~OpenGLContext();
+    OpenGLContext(const OpenGLContext &object);
+    virtual ~OpenGLContext();
 
     void UseOnCurrentThread();
     void PrintGPUInfo();
