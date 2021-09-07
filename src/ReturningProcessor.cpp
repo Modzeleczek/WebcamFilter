@@ -46,7 +46,7 @@ void ReturningProcessor::ProcessFrame()
 
 void ReturningProcessor::DownloadFrame()
 {
-    glReadPixels(0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, Output);
+    glReadPixels(0, 0, Width / 2, Height, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, Output);
 }
 
 void ReturningProcessor::CreateFramebuffer() // tworzymy Framebuffer Object (FBO) i Render Buffer Object (RBO) jako color attachment do FBO
@@ -61,7 +61,7 @@ void ReturningProcessor::CreateFramebuffer() // tworzymy Framebuffer Object (FBO
     // bindujemy RBO
     glBindRenderbuffer(GL_RENDERBUFFER, RBO);
     // rezerwujemy pamięć RBO
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, Width / 2, Height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8UI, Width / 2, Height);
     // odbindowujemy RBO, bo zbindowaliśmy uchwyt do niego tylko po to, aby zarezerwować na niego pamięć
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 

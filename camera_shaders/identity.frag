@@ -2,10 +2,10 @@
 
 in vec2 fragmentTextureCoord;
 
-uniform sampler2D texture1; // indeks texture unita
+uniform usampler2D texture1; // indeks texture unita
 uniform ivec2 size; // szerokość i wysokość obrazu w pikselach
 
-out vec4 FragColor;
+out uvec4 FragColor;
 
 void main()
 {

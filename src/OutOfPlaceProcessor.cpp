@@ -46,7 +46,7 @@ void OutOfPlaceProcessor::UploadFrame()
 {
     // przesyłamy klatkę do pamięci GPU jako teksturę
     // glTexImage2D rezerwuje nową pamięć dla aktualnie zbindowanego uchwytu tekstury w GPU, a glTexSubImage2D tylko aktualizuje jej istniejącą pamięć
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Width / 2, Height, GL_RGBA, GL_UNSIGNED_BYTE, Input); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy WIDTH / 2
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Width / 2, Height, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, Input); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy WIDTH / 2
 }
 
 void OutOfPlaceProcessor::ProcessFrame()
@@ -94,10 +94,10 @@ void OutOfPlaceProcessor::CreateTexture() // tworzymy teksturę, do której prze
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // ustawiamy filtrowanie (filtering) aktualnie zbindowanej tekstury
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // lub GL_LINEAR; gdy używamy standardowej float tekstury (każdy teksel ma znormalizowane wartości składowych do przedziału [0, 1]), metoda filtrowania ma znaczenie tylko, gdy fragment shader używa do samplowania texture2D, a nie texelFetch
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // jeżeli używamy int (a nie standardowej float) tekstury, musi być GL_NEAREST
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width / 2, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy width / 2
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8UI, Width / 2, Height, 0, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, NULL); // tekstura rgba; każdy teksel tekstury ma obejmować 2 kolejne w poziomie piksele obrazu, więc dzielimy width / 2
 }
 
 void OutOfPlaceProcessor::CreateProgram(const char *vertexShaderPath, const char *fragmentShaderPath) // kompilujemy shadery i linkujemy je do programu
@@ -152,9 +152,9 @@ void OutOfPlaceProcessor::CreateProgram(const char *vertexShaderPath, const char
 void OutOfPlaceProcessor::SetConstantUniforms() // nadajemy wartości stałym typu uniform we fragment shaderze aktywnego shader programu
 {
     // zapisujemy uchwyt (handle) do zmiennej typu uniform występującej we fragment shaderze (uniform sampler2D texture1)
-    int texture1Sampler2D = glGetUniformLocation(Program, "texture1");
+    int texture1Usampler2D = glGetUniformLocation(Program, "texture1");
     // mając aktywny wybrany shader program, zapisujemy w tej zmiennej indeks texture unita, który odpowiada za wczytaną przez GPU teksturę texture1; za pomocą tego indeksu odwołujemy się we fragment shaderze do texture unita, aby samplować teksturę wczytaną w tym texture unicie
-    glUniform1i(texture1Sampler2D, 0);
+    glUniform1i(texture1Usampler2D, 0);
 
     int size = glGetUniformLocation(Program, "size");
     glUniform2i(size, Width - 1, Height - 1);
