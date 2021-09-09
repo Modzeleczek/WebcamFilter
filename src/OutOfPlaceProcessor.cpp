@@ -191,10 +191,10 @@ void OutOfPlaceProcessor::CreateRectangle(const std::initializer_list<Vertex> &v
     glEnableVertexAttribArray(0);
     // określamy sposób interpretacji przez aktualnie używany vertex shader współrzędnych wierzchołków, które są pobierane z VBO zbindowanego w momencie, gdy wywołujemy poniższą funkcję glVertexAttribPointer, a następnie umieszczane dla każdego wierzchołka w jego atrybucie wejściowym vertexCoord (layout (location = 0) in vec2 vertexCoord)
     // w funkcji glVertexAttribPointer wskazujemy, jak ma być wypełniany z bufora VBO atrybut o indeksie (lokacji) 0 w vertex shaderze aktualnie używanego (glUseProgram) shader programu; indeks (równy lokacji) atrybutu 0 może się powtarzać w różnych vertex shaderach
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(0 + sizeof(Vertex::Position)));
 
     // kiedy bindować/odbindowywać VAO, VBO, EBO (inaczej IBO): https://gamedev.stackexchange.com/questions/90471/should-unbind-buffers
     // odbindowujemy VAO koniecznie przed odbindowaniem VBO i EBO, bo VAO zapisuje też informację o zbindowaniu/odbindowaniu VBO/EBO, a chcemy, mieć je zbindowane w momencie zbindowania VAO podczas renderowania
