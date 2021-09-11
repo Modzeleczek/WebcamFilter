@@ -15,5 +15,6 @@ void SequentialSink::Start()
         IPP.ProcessFrame();
         OOPP.UploadFrame();
         OOPP.ProcessFrame();
+        Target.UploadFrame();
     }
 }

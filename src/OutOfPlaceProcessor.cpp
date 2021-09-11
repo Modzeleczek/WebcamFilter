@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <string.h>
 
-OutOfPlaceProcessor::OutOfPlaceProcessor(IBuffer *src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert) :
+OutOfPlaceProcessor::OutOfPlaceProcessor(ISource *src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert) :
     Processor(src)
 {
     CreateTexture();
@@ -20,7 +20,7 @@ OutOfPlaceProcessor::OutOfPlaceProcessor(IBuffer *src, const char *vsPath, const
     glBindVertexArray(VAO);
 }
 
-OutOfPlaceProcessor::OutOfPlaceProcessor(IBuffer *source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
+OutOfPlaceProcessor::OutOfPlaceProcessor(ISource *source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
     OutOfPlaceProcessor(source, vertexShaderFilePath, fragmentShaderFilePath,
         // pozycje wierzchołków prostokąta; tekstura jest odwrócona w pionie
         {
@@ -119,7 +119,7 @@ void OutOfPlaceProcessor::CreateProgram(const char *vertexShaderPath, const char
     // kod fragment shadera wykonywany dla każdego piksela wyświetlanej figury (tutaj prostokąta)
     char *fragmentShaderCode = NULL;
     if (LoadText(fragmentShaderPath, &fragmentShaderCode) < 0)
-        throw std::runtime_error(std::string("OutOfPlaceProcessor::CreateProgram; Failed to load fragment shader code from file ") + vertexShaderPath);
+        throw std::runtime_error(std::string("OutOfPlaceProcessor::CreateProgram; Failed to load fragment shader code from file ") + fragmentShaderPath);
     // tworzymy nowy fragment shader w GPU i zapisujemy do niego uchwyt
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     // przekazujemy kod do utworzonego shadera

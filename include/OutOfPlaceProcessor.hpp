@@ -2,6 +2,7 @@
 #define OutOfPlaceProcessor_HPP
 
 #include "Processor.hpp"
+#include "ISource.hpp"
 
 #include <initializer_list>
 
@@ -15,9 +16,9 @@ protected:
     {
         float Position[2], TextureCoord[2];
     };
-    OutOfPlaceProcessor(IBuffer *src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert);
+    OutOfPlaceProcessor(ISource *src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert);
 public:
-    OutOfPlaceProcessor(IBuffer *source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
+    OutOfPlaceProcessor(ISource *source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
     virtual ~OutOfPlaceProcessor();
 
     void UploadFrame();

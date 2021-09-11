@@ -2,6 +2,7 @@
 #define ReturningProcessor_HPP
 
 #include "OutOfPlaceProcessor.hpp"
+#include "ITarget.hpp"
 
 class ReturningProcessor : public OutOfPlaceProcessor
 {
@@ -10,7 +11,7 @@ private:
     unsigned int FBO, RBO;
 
 public:
-    ReturningProcessor(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
+    ReturningProcessor(ISource *source, ITarget *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
     virtual ~ReturningProcessor();
 
     virtual void ProcessFrame() override;

@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <stdexcept>
 
-ReturningProcessor::ReturningProcessor(IBuffer *source, IBuffer *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
+ReturningProcessor::ReturningProcessor(ISource *source, ITarget *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
     OutOfPlaceProcessor(source, vertexShaderFilePath, fragmentShaderFilePath,
         // pozycje wierzchołków prostokąta; tekstura pokrywa się z prostokątem
         {
