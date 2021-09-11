@@ -1,3 +1,4 @@
+#include "../include/Parameters.hpp"
 #include "../include/Webcam.hpp"
 #include "../include/GenericSource.hpp"
 #include "../include/VideoLoopback.hpp"
@@ -8,7 +9,6 @@
 #include "../include/SequentialPipeline.hpp"
 #include "../include/ConcurrentPipeline.hpp"
 
-#include <stdio.h>
 #include <signal.h>
 #include <stdexcept>
 #include <string.h>
@@ -21,7 +21,7 @@ void SigintHandler(int signo)
     printf("received SIGINT\n");
 }
 
-int main()
+int main(int argc, char **argv)
 {
     sigset_t set;
     if (signal(SIGINT, SigintHandler) == SIG_ERR)
@@ -31,28 +31,44 @@ int main()
     if (sigaddset(&set, SIGINT) == -1)
         throw std::runtime_error(std::string("main; sigaddset; ") + strerror(errno));
 
-    const int width = 160 * 4; // * 1, 2, 4, 5, 8
-    const int height = 120 * 4; // * 1, 2, 4, 5, 6
-    OpenGLContext context(width, height);
+    Parameters p(argc, argv);
+
+    OpenGLContext context(p.Width, p.Height);
     context.UseOnCurrentThread();
-
-    Webcam source("/dev/video0", width, height);
-    // GenericSource source(width, height);
-
-    VideoLoopback target("/dev/video2", width, height);
-    // Display target(context);
-
-    InPlaceProcessor cpu(&source);
-    ReturningProcessor gpu(&source, &target, "camera_shaders/rectangle.vert", "camera_shaders/solid_color.frag");
-    // OutOfPlaceProcessor gpu(&source, "display_shaders/rectangle.vert", "display_shaders/binary.frag");
-
-    source.StartStreaming();
-    target.StartStreaming();
-    ConcurrentPipeline p(source, cpu, gpu, target);
-    // ConcurrentSink p(source, cpu, gpu, target);
-    program = &p;
+    ISource *source;
+    ITarget *target;
+    OutOfPlaceProcessor *gpu;
+    if (p.SourcePath == NULL)
+        source = new GenericSource(p.Width, p.Height);
+    else
+    {
+        source = new Webcam(p.SourcePath, p.Width, p.Height);
+        ((Webcam*)source)->StartStreaming();
+    }
+    InPlaceProcessor cpu(source);
+    if (p.TargetPath == NULL)
+    {
+        target = new Display(context);
+        gpu = new OutOfPlaceProcessor(source, p.VSPath, p.FSPath);
+        if (p.Concurrent == false)
+            program = new SequentialSink(*source, cpu, *gpu, *target);
+        else
+            program = new ConcurrentSink(*source, cpu, *gpu, *target);
+    }
+    else
+    {
+        target = new VideoLoopback(p.TargetPath, p.Width, p.Height);
+        gpu = new ReturningProcessor(source, target, p.VSPath, p.FSPath);
+        if (p.Concurrent == false)
+            program = new SequentialPipeline(*source, cpu, dynamic_cast<ReturningProcessor&>(*gpu), *target);
+        else
+            program = new ConcurrentPipeline(*source, cpu, dynamic_cast<ReturningProcessor&>(*gpu), *target);
+        ((VideoLoopback*)target)->StartStreaming();
+    }
     program->Start();
-    source.StopStreaming();
-    target.StopStreaming();
+    delete source;
+    delete target;
+    delete gpu;
+    delete program;
     return 0;
 }
