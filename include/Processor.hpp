@@ -11,7 +11,7 @@ protected:
     uint8_t *const Input;
     const int Width, Height;
 
-    Processor(IBuffer *source);
+    Processor(IBuffer &source);
     virtual ~Processor();
 
 public:

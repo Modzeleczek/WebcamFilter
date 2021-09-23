@@ -12,7 +12,7 @@ private:
     int StartX, StartY, EndX, EndY;
 
 public:
-    InPlaceProcessor(IBuffer *buffer); // przetwarzamy klatkę w miejscu, czyli bez kopiowania z bufora wejściowego do wyjściowego
+    InPlaceProcessor(IBuffer &buffer); // przetwarzamy klatkę w miejscu, czyli bez kopiowania z bufora wejściowego do wyjściowego
     virtual ~InPlaceProcessor();
 
     virtual void ProcessFrame() override;

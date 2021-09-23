@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <stdexcept>
 
-ReturningProcessor::ReturningProcessor(ISource *source, ITarget *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
+ReturningProcessor::ReturningProcessor(ISource &source, ITarget &target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
     OutOfPlaceProcessor(source, vertexShaderFilePath, fragmentShaderFilePath,
         // pozycje wierzchołków prostokąta; tekstura pokrywa się z prostokątem
         {
@@ -14,11 +14,11 @@ ReturningProcessor::ReturningProcessor(ISource *source, ITarget *target, const c
             {-1.f, -1.f,  0.f, 0.f}, // bottom left
             {-1.f, 1.f,  0.f, 1.f} // top left
         }),
-    Output(target->GetBuffer())
+    Output(target.GetBuffer())
 {
-    if (Width != target->GetWidth())
+    if (Width != target.GetWidth())
         throw std::runtime_error("ReturningProcessor::ReturningProcessor; Source and target have different width.");
-    if (Height != target->GetHeight())
+    if (Height != target.GetHeight())
         throw std::runtime_error("ReturningProcessor::ReturningProcessor; Source and target have different height.");
     CreateFramebuffer();
     // bindujemy FBO, aby renderować do niego scenę (składającą się tylko z prostokąta)

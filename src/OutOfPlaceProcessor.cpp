@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <string.h>
 
-OutOfPlaceProcessor::OutOfPlaceProcessor(ISource *src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert) :
+OutOfPlaceProcessor::OutOfPlaceProcessor(ISource &src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert) :
     Processor(src)
 {
     CreateTexture();
@@ -20,7 +20,7 @@ OutOfPlaceProcessor::OutOfPlaceProcessor(ISource *src, const char *vsPath, const
     glBindVertexArray(VAO);
 }
 
-OutOfPlaceProcessor::OutOfPlaceProcessor(ISource *source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
+OutOfPlaceProcessor::OutOfPlaceProcessor(ISource &source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath) :
     OutOfPlaceProcessor(source, vertexShaderFilePath, fragmentShaderFilePath,
         // pozycje wierzchołków prostokąta; tekstura jest odwrócona w pionie
         {

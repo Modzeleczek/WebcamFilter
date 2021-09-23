@@ -16,9 +16,9 @@ protected:
     {
         float Position[2], TextureCoord[2];
     };
-    OutOfPlaceProcessor(ISource *src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert);
+    OutOfPlaceProcessor(ISource &src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert);
 public:
-    OutOfPlaceProcessor(ISource *source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
+    OutOfPlaceProcessor(ISource &source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
     virtual ~OutOfPlaceProcessor();
 
     void UploadFrame();

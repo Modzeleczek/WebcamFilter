@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-InPlaceProcessor::InPlaceProcessor(IBuffer *sourceTarget) :
+InPlaceProcessor::InPlaceProcessor(IBuffer &sourceTarget) :
     Processor(sourceTarget)
 {
     RandomizeLine();

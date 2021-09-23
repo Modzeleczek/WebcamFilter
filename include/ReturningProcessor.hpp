@@ -11,7 +11,7 @@ private:
     unsigned int FBO, RBO;
 
 public:
-    ReturningProcessor(ISource *source, ITarget *target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
+    ReturningProcessor(ISource &source, ITarget &target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
     virtual ~ReturningProcessor();
 
     virtual void ProcessFrame() override;

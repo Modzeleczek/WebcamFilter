@@ -45,11 +45,11 @@ int main(int argc, char **argv)
         source = new Webcam(p.SourcePath, p.Width, p.Height);
         ((Webcam*)source)->StartStreaming();
     }
-    InPlaceProcessor cpu(source);
+    InPlaceProcessor cpu(*source);
     if (p.TargetPath == NULL)
     {
         target = new Display(context);
-        gpu = new OutOfPlaceProcessor(source, p.VSPath, p.FSPath);
+        gpu = new OutOfPlaceProcessor(*source, p.VSPath, p.FSPath);
         if (p.Concurrent == false)
             program = new SequentialSink(*source, cpu, *gpu, *target);
         else
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     else
     {
         target = new VideoLoopback(p.TargetPath, p.Width, p.Height);
-        gpu = new ReturningProcessor(source, target, p.VSPath, p.FSPath);
+        gpu = new ReturningProcessor(*source, *target, p.VSPath, p.FSPath);
         if (p.Concurrent == false)
             program = new SequentialPipeline(*source, cpu, dynamic_cast<ReturningProcessor&>(*gpu), *target);
         else
