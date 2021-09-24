@@ -73,6 +73,7 @@ Then we start WebcamFilter passing the created device's path /dev/video5 and sha
 ```
 ./WebcamFilter -c -s /dev/video0 -t /dev/video5 640 480 camera_shaders/rectangle.vert camera_shaders/binary.frag
 ```
+We can select VirtualCam device as our webcam in an application e.g. Discord.
 ![imgur; V4L2 device; binary](https://i.imgur.com/3AFU7ce.png)
 
 ## Building
