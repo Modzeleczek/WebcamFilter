@@ -60,14 +60,14 @@ build/apps/WebcamFilter -c -s /dev/video0 640 480 display_shaders/rectangle.vert
 ```
 TODO
 
-## Compiling
-WebcamFilter creates an OpenGL window using GLFW and then calls GLEW functions to control the GPU. The program has been checked to be compiled correctly using g++ 9.3.0 and with the following apt packages installed:
+## Building
+WebcamFilter creates an OpenGL window using GLFW and then calls GLEW functions to control the GPU. The program has been checked to be built correctly using g++ 9.3.0 and with the following apt packages installed:
 - libglfw3 3.3.2-1
 - libglfw3-dev 3.3.2-1
 - libglew2.1 2.1.0-4
 - libglew-dev 2.1.0-4
 
-If you already have g++ and the required packages, you can compile WebcamFilter using make.
+If you already have g++ and the required packages, you can build WebcamFilter using make.
 ```
 make release
 ```
