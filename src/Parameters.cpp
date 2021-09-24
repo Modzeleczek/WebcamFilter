@@ -5,10 +5,16 @@
 #include <unistd.h>
 
 #define HELP "WebcamFilter [options] frame-width frame-height vertex-shader-path fragment-shader-path\n\
+Arguments:\n\
+ frame-width             Width of frames used by source and target. Frame width must be equal for source and target.\n\
+ frame-height            Height of frames used by source and target. Frame height must be equal for source and target.\n\
+ vertex-shader-path      Path to a text file containing code of the vertex shader executed by GPU.\n\
+ fragment-shader-path    Path to a text file containing code of the fragment shader executed by GPU.\n\
+\n\
 Options:\n\
  -s <path>    Download image frames from the webcam device in <path>.\n\
  -t <path>    Upload processed image frames to the V4L2 loopback device in <path>.\n\
- -c           Download next frame from source while processing the current one."
+ -c           Download next frame from source while (default: after) processing the current one."
 
 Parameters::Parameters(int argc, char **argv) :
     SourcePath(NULL),
