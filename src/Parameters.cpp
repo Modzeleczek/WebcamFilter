@@ -14,7 +14,9 @@ Arguments:\n\
 Options:\n\
  -s <path>    Download image frames from the webcam device in <path>.\n\
  -t <path>    Upload processed image frames to the V4L2 loopback device in <path>.\n\
- -c           Download next frame from source while (default: after) processing the current one."
+ -c           Download next frame from source while (default: after) processing the current one.\n\
+\n\
+To close a WebcamFilter process send it a SIGINT signal."
 
 Parameters::Parameters(int argc, char **argv) :
     SourcePath(NULL),

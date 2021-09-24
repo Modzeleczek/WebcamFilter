@@ -20,9 +20,8 @@ BUILD    := ./build
 OBJ_DIR  := $(BUILD)/objects
 APP_DIR  := $(BUILD)/apps
 TARGET   := WebcamFilter
-INCLUDE  := -Iinclude/
-SRC      := $(wildcard src/*.cpp)
-
+INCLUDE  := $(addprefix -I,$(shell find include/ -type d -print))
+SRC      := $(shell find src/ -type f -iregex ".*\.c\(pp\)?")
 OBJECTS  := $(SRC:%.cpp=$(OBJ_DIR)/%.o)
 DEPENDENCIES \
          := $(OBJECTS:.o=.d)
