@@ -38,7 +38,9 @@ Options:
  -s <path>    Download image frames from the webcam device in <path>.
  -t <path>    Upload processed image frames to the V4L2 loopback device in <path>.
  -c           Download next frame from source while (default: after) processing the current one.
- ```
+ 
+To close a WebcamFilter process send it a SIGINT signal.
+```
 
 When -s is not used, WebcamFilter uses software generated source, i.e. it generates pseudo-random frames by itself.  
 When -t is not used, WebcamFilter displays output frames in an OpenGL window.
@@ -54,11 +56,24 @@ Shaders for use with OpenGL window target are located in display_shaders directo
 Shaders for use with virtual video device are located in camera_shaders directory.  
 In both directories there is one vertex shader rectangle.vert and several fragment shaders with .frag extension which implement the effects listed above.
 
-#### Usage example
+### Usage example
+#### 1. Edge detection effect displayed in an OpenGL window
+We start WebcamFilter passing only our webcam's path /dev/video0 and shaders from display_shaders directory.
 ```
-build/apps/WebcamFilter -c -s /dev/video0 640 480 display_shaders/rectangle.vert display_shaders/edges.frag
+./WebcamFilter -c -s /dev/video0 640 480 display_shaders/rectangle.vert display_shaders/edges.frag
 ```
-TODO
+![imgur; window; edges](https://i.imgur.com/KuSvVRQ.png)
+
+#### 2. Binarization effect for a virtual video device
+Firstly, we create a virtual video device using v4l2loopback kernel module.
+```
+sudo modprobe v4l2loopback devices=1 card_label="VirtualCam" video_nr=5
+```
+Then we start WebcamFilter passing the created device's path /dev/video5 and shaders from camera_shaders directory.
+```
+./WebcamFilter -c -s /dev/video0 -t /dev/video5 640 480 camera_shaders/rectangle.vert camera_shaders/binary.frag
+```
+![imgur; V4L2 device; binary](https://i.imgur.com/3AFU7ce.png)
 
 ## Building
 WebcamFilter creates an OpenGL window using GLFW and then calls GLEW functions to control the GPU. The program has been checked to be built correctly using g++ 9.3.0 and with the following apt packages installed:
