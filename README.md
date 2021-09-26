@@ -25,7 +25,16 @@ WebcamFilter's purpose is to process images in real time using filters which are
 - solid color (input image is ignored and the output is a particular solid color)
 
 ## Running
-WebcamFilter has been made for Linux and tested on Ubuntu 20.04 LTS. In order to run the program you need a GPU supporting OpenGL 3.3 or newer.
+WebcamFilter has been tested on Ubuntu 20.04 LTS and Debian 10 with Intel HD 4600 and NVIDIA GeForce 820M. In order to run the program you need a GPU supporting OpenGL 3.3 or newer and the following shared libraries:
+- libglfw3 (tested on 3.3.2-1: libglfw.so.3.3)
+- libglew2.1 (tested on 2.1.0-4: libGLEW.so.2.1.0)
+
+which you can get by executing
+```
+sudo apt install libglfw3 libglew2.1
+```
+
+Below is the program's usage description.
 ```
 WebcamFilter [options] frame-width frame-height vertex-shader-path fragment-shader-path
 Arguments:
@@ -56,7 +65,7 @@ Shaders for use with OpenGL window target are located in display_shaders directo
 Shaders for use with virtual video device are located in camera_shaders directory.  
 In both directories there is one vertex shader rectangle.vert and several fragment shaders with .frag extension which implement the effects listed above.
 
-### Usage example
+### Usage examples
 #### 1. Edge detection effect displayed in an OpenGL window
 We start WebcamFilter passing only our webcam's path /dev/video0 and shaders from display_shaders directory.
 ```
@@ -77,11 +86,14 @@ We can select VirtualCam device as our webcam in an application e.g. Discord.
 ![imgur; V4L2 device; binary](https://i.imgur.com/3AFU7ce.png)
 
 ## Building
-WebcamFilter creates an OpenGL window using GLFW and then calls GLEW functions to control the GPU. The program has been checked to be built correctly using g++ 9.3.0 and with the following apt packages installed:
-- libglfw3 3.3.2-1
-- libglfw3-dev 3.3.2-1
-- libglew2.1 2.1.0-4
-- libglew-dev 2.1.0-4
+WebcamFilter creates an OpenGL window using GLFW and then calls GLEW functions to control the GPU. To build the program correctly you need both of the libraries. To get them you can install the following apt packages:
+- libglfw3-dev (tested on 3.3.2-1)
+- libglew-dev (tested on 2.1.0-4)
+
+by executing
+```
+sudo apt install libglfw3-dev libglew-dev
+```
 
 If you already have g++ and the required packages, you can build WebcamFilter using make.
 ```
