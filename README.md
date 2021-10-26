@@ -71,16 +71,16 @@ v4l2-ctl --list-formats-ext
 
 You need to install v4l2loopback (https://github.com/umlaeute/v4l2loopback) kernel module which allows you to create a virtual video device if you want to use one as a target.
 
-Shaders for use with OpenGL window target are located in display_shaders directory.  
-Shaders for use with virtual video device target are located in camera_shaders directory.  
-Shaders for use with ncurses terminal target are located in terminal_shaders directory.  
+Shaders for use with OpenGL window target are located in shaders/display directory.  
+Shaders for use with virtual video device target are located in shaders/v4l2loopback directory.  
+Shaders for use with ncurses terminal target are located in shaders/terminal directory.  
 In every of these directories there is one vertex shader rectangle.vert and several fragment shaders with .frag extension which implement the effects listed above.
 
 ### Usage examples
 #### 1. Edge detection effect displayed in an OpenGL window
-We start WebcamFilter passing only our webcam's path /dev/video0 and shaders from display_shaders directory.
+We start WebcamFilter passing only our webcam's path /dev/video0 and shaders from shaders/display directory.
 ```
-./WebcamFilter -c -s webcam -w /dev/video0 -t display 640 480 640 480 display_shaders/rectangle.vert display_shaders/edges.frag
+./WebcamFilter -c -s webcam -w /dev/video0 -t display 640 480 640 480 shaders/display/rectangle.vert shaders/display/edges.frag
 ```
 ![imgur; window; edges](https://i.imgur.com/KuSvVRQ.png)
 
@@ -89,17 +89,17 @@ Firstly, we create a virtual video device using v4l2loopback kernel module.
 ```
 sudo modprobe v4l2loopback devices=1 card_label="VirtualCam" video_nr=5
 ```
-Then we start WebcamFilter passing the created device's path /dev/video5 and shaders from camera_shaders directory.
+Then we start WebcamFilter passing the created device's path /dev/video5 and shaders from shaders/v4l2loopback directory.
 ```
-./WebcamFilter -c -s webcam /dev/video0 -t v4l2loopback -l /dev/video5 640 480 640 480 camera_shaders/rectangle.vert camera_shaders/binary.frag
+./WebcamFilter -c -s webcam -w /dev/video0 -t v4l2loopback -l /dev/video5 640 480 640 480 shaders/v4l2loopback/rectangle.vert shaders/v4l2loopback/binary.frag
 ```
 We can select VirtualCam device as our webcam in an application e.g. Discord.  
 ![imgur; V4L2 device; binary](https://i.imgur.com/3AFU7ce.png)
 
 #### 3. Smoothly downscaled input displayed in an ncurses terminal
-Firstly, we set our terminal's font to a square font, i.e. one whose all characters are equally wide and high. Then we resize the terminal to 80 characters wide and 60 high. We start WebcamFilter passing our webcam's path /dev/video0 and shaders from terminal_shaders directory. Additionally, we specify target width as 80 and height as 60 (the size of our terminal) and source width and height greater than target's.
+Firstly, we set our terminal's font to a square font, i.e. one whose all characters are equally wide and high. Then we resize the terminal to 80 characters wide and 60 high. We start WebcamFilter passing our webcam's path /dev/video0 and shaders from shaders/terminal directory. Additionally, we specify target width as 80 and height as 60 (the size of our terminal) and source width and height greater than target's.
 ```
-./WebcamFilter -c -s webcam -w /dev/video0 -t terminal 640 480 80 60 terminal_shaders/rectangle.vert terminal_shaders/smooth_downscaling.frag
+./WebcamFilter -c -s webcam -w /dev/video0 -t terminal 640 480 80 60 shaders/terminal/rectangle.vert shaders/terminal/smooth_downscaling.frag
 ```
 ![imgur; ncurses terminal; smooth downscaling](https://i.imgur.com/GG39Aci.png)
 
