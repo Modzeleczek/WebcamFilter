@@ -31,12 +31,13 @@ WebcamFilter's purpose is to process images in real time using filters which are
 
 ## Running
 WebcamFilter has been tested on Ubuntu 20.04 LTS and Debian 10 with Intel HD 4600 and NVIDIA GeForce 820M. In order to run the program you need a GPU supporting OpenGL 3.3 or newer and the following shared libraries:
-- libglfw3 (tested on 3.3.2-1: libglfw.so.3.3)
-- libglew2.1 (tested on 2.1.0-4: libGLEW.so.2.1.0)
+- ```libglfw3``` (tested on 3.3.2-1: libglfw.so.3.3)
+- ```libglew2.1``` (tested on 2.1.0-4: libGLEW.so.2.1.0)
+- ```libncurses6``` (tested on6.2-0ubuntu2: libncurses.so.6.2)
 
 which you can get by executing
 ```
-sudo apt install libglfw3 libglew2.1
+sudo apt install libglfw3 libglew2.1 libncurses6
 ```
 
 Below is the program's usage description.
