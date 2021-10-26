@@ -3,7 +3,7 @@
 in vec2 fragmentTextureCoord;
 
 uniform usampler2D texture1;
-uniform ivec2 size;
+uniform ivec2 inputSize;
 
 out vec3 FragColor;
 
@@ -18,8 +18,8 @@ void main()
         {
             ivec2 coord = ivec2
             (
-                int(fragmentTextureCoord.x * size.x) + x,
-                int(fragmentTextureCoord.y * size.y) + y
+                int(fragmentTextureCoord.x * inputSize.x) + x,
+                int(fragmentTextureCoord.y * inputSize.y) + y
             );
 
             float Y, U, V;

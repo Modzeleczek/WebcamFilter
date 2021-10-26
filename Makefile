@@ -15,7 +15,7 @@
 
 CXX      := -c++
 CXXFLAGS := -pedantic-errors -Wall -Wextra
-LDLIBS   := -lglfw -lGL -lGLEW -pthread
+LDLIBS   := -lglfw -lGL -lGLEW -pthread -lncurses
 BUILD    := ./build
 OBJ_DIR  := $(BUILD)/objects
 APP_DIR  := $(BUILD)/apps

@@ -3,7 +3,7 @@
 in vec2 fragmentTextureCoord;
 
 uniform usampler2D texture1;
-uniform ivec2 size;
+uniform ivec2 inputSize;
 
 out uvec4 FragColor;
 
@@ -11,8 +11,8 @@ void main()
 {
     ivec2 texelCoord = ivec2
     (
-        int(fragmentTextureCoord.x * size.x),
-        int(fragmentTextureCoord.y * size.y)
+        int(fragmentTextureCoord.x * inputSize.x),
+        int(fragmentTextureCoord.y * inputSize.y)
     );
     uvec4 pixelPair = texelFetch(texture1, texelCoord, 0); // [0]=Y1; [1]=U; [2]=Y2; [3]=V
 

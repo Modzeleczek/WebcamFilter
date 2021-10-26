@@ -4,8 +4,8 @@
 
 Processor::Processor(IBuffer &source) :
     Input(source.GetBuffer()),
-    Width(source.GetWidth()),
-    Height(source.GetHeight())
+    InputWidth(source.GetWidth()),
+    InputHeight(source.GetHeight())
 {}
 
 Processor::~Processor() {}

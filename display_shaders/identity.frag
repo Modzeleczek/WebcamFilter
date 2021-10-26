@@ -3,7 +3,7 @@
 in vec2 fragmentTextureCoord;
 
 uniform usampler2D texture1;
-uniform ivec2 size;
+uniform ivec2 inputSize;
 
 out vec3 FragColor;
 
@@ -11,8 +11,8 @@ void main()
 {
     ivec2 coord = ivec2
     (
-        int(fragmentTextureCoord.x * size.x), // fragmentTextureCoord.x przyjmuje wartości z zakresu [0, 1]
-        int(fragmentTextureCoord.y * size.y) // fragmentTextureCoord.y przyjmuje wartości z zakresu [0, 1]
+        int(fragmentTextureCoord.x * inputSize.x), // fragmentTextureCoord.x przyjmuje wartości z zakresu [0, 1]
+        int(fragmentTextureCoord.y * inputSize.y) // fragmentTextureCoord.y przyjmuje wartości z zakresu [0, 1]
     );
 
     // wyznaczamy składowe YUV fragmentu (piksela)
