@@ -3,7 +3,7 @@
 in vec2 fragmentTextureCoord;
 
 uniform usampler2D texture1; // indeks texture unita
-uniform ivec2 size; // szerokość i wysokość obrazu w pikselach
+uniform ivec2 inputSize; // szerokość i wysokość obrazu w pikselach
 
 out uvec4 FragColor;
 
@@ -30,8 +30,8 @@ void main()
 {
     ivec2 texelCoord = ivec2
     (
-        int(fragmentTextureCoord.x * size.x),
-        int(fragmentTextureCoord.y * size.y)
+        int(fragmentTextureCoord.x * inputSize.x),
+        int(fragmentTextureCoord.y * inputSize.y)
     );
     // texelFetch(texture1, texelCoord, 0); // [0]=Y1; [1]=U; [2]=Y2; [3]=V
 

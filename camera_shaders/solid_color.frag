@@ -3,7 +3,7 @@
 in vec2 fragmentTextureCoord;
 
 uniform usampler2D texture1;
-uniform ivec2 size;
+uniform ivec2 inputSize;
 
 out uvec4 FragColor;
 

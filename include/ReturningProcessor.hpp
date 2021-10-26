@@ -6,18 +6,18 @@
 
 class ReturningProcessor : public OutOfPlaceProcessor
 {
-private:
+protected:
     uint8_t *const Output;
-    unsigned int FBO, RBO;
+    GLuint FBO, RBO;
+    int OutputWidth, OutputHeight;
 
+    ReturningProcessor(ISource &source, ITarget &target, GLenum RBOInternalFormat, GLsizei RBOWidth);
 public:
-    ReturningProcessor(ISource &source, ITarget &target, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
     virtual ~ReturningProcessor();
 
-    virtual void ProcessFrame() override;
-    void DownloadFrame();
-private:
-    void CreateFramebuffer();
+    virtual void DownloadFrame() = 0;
+protected:
+    void CreateFramebuffer(GLenum RBOInternalFormat, GLsizei RBOWidth);
 };
 
 #endif // ReturningProcessor_HPP

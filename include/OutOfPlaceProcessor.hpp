@@ -3,32 +3,29 @@
 
 #include "Processor.hpp"
 #include "ISource.hpp"
+#include "ShaderProgram.hpp"
 
 #include <initializer_list>
 
 class OutOfPlaceProcessor : public Processor
 {
 protected:
-    unsigned int Program, VAO, VBO, EBO, Texture1;
+    GLuint Program, VAO, VBO, EBO, Texture1;
 
 protected:
     struct Vertex
     {
         float Position[2], TextureCoord[2];
     };
-    OutOfPlaceProcessor(ISource &src, const char *vsPath, const char *fsPath, const std::initializer_list<Vertex> &vert);
+    OutOfPlaceProcessor(ISource &src, const std::initializer_list<Vertex> &vert);
 public:
-    OutOfPlaceProcessor(ISource &source, const char *vertexShaderFilePath, const char *fragmentShaderFilePath);
+    OutOfPlaceProcessor(ISource &source);
     virtual ~OutOfPlaceProcessor();
 
     void UploadFrame();
     virtual void ProcessFrame() override;
 protected:
-    void CheckShaderCompileStatus(unsigned int handle);
-    void CheckProgramLinkStatus(unsigned int handle);
     void CreateTexture();
-    void CreateProgram(const char *vertexShaderPath, const char *fragmentShaderPath);
-    void SetConstantUniforms();
     void CreateRectangle(const std::initializer_list<Vertex> &vert);
 };
 

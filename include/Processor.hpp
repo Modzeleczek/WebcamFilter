@@ -9,7 +9,7 @@ class Processor // klasa abstrakcyjna
 {
 protected:
     uint8_t *const Input;
-    const int Width, Height;
+    const int InputWidth, InputHeight;
 
     Processor(IBuffer &source);
     virtual ~Processor();

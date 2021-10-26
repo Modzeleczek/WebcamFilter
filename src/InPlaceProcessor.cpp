@@ -24,10 +24,10 @@ void InPlaceProcessor::RandomizeLine()
     Y = rand() & 255;
     U = rand() & 255;
     V = rand() & 255;
-    StartX = rand() % Width;
-    StartY = rand() % Height;
-    EndX = rand() % Width;
-    EndY = rand() % Height;
+    StartX = rand() % InputWidth;
+    StartY = rand() % InputHeight;
+    EndX = rand() % InputWidth;
+    EndY = rand() % InputHeight;
     Frame = 0;
 }
 
@@ -60,10 +60,10 @@ void InPlaceProcessor::DrawLine()
     }
     int numerator = longest >> 1;
 
-    dy1 = dy1 * Width;
-    dy2 = dy2 * Width;
+    dy1 = dy1 * InputWidth;
+    dy2 = dy2 * InputWidth;
 
-    int pixel = x + y * Width;
+    int pixel = x + y * InputWidth;
     int i;
     for (i = 0; i <= longest; i++)
     {
